@@ -11,8 +11,14 @@ export class User {
   username: string;
   @Prop({ required: true, unique: true })
   email: string;
-  @Prop({ required: true })
+  @Prop()
   password: string;
+  @Prop()
+  provider: string;
+  @Prop()
+  providerId: string;
+  @Prop()
+  picture: string;
   @Prop()
   refreshToken: string;
 }
@@ -21,9 +27,10 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre('save', async function (next) {
   try {
-    const hashed = await bcrypt.hash(this.password, 10);
-
-    this.password = hashed;
+    if (this.password) {
+      const hashed = await bcrypt.hash(this.password, 10);
+      this.password = hashed;
+    }
 
     return next();
   } catch (err) {

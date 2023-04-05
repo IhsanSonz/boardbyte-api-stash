@@ -5,5 +5,8 @@ export interface User extends Document {
   username: string;
   email: string;
   password: string;
+  provider?: string;
+  providerId?: string;
+  picture?: string;
   refreshToken?: string;
 }

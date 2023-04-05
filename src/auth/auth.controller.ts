@@ -9,10 +9,12 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessTokenGuard } from 'src/common/guards/access-token/access-token.guard';
+import { GoogleOauthGuard } from 'src/common/guards/google-oauth/google-oauth.guard';
 import { RefreshTokenGuard } from 'src/common/guards/refresh-token/refresh-token.guard';
 import { TransformInterceptor } from 'src/transform/transform.interceptor';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
+import { OauthDto } from './dtos/oauth.dto';
 import { RegisterDto } from './dtos/register.dto';
 
 @Controller('auth')
@@ -54,6 +56,30 @@ export class AuthController {
     return {
       message: 'Refresh token success',
       result: await this.authService.refreshAccessToken(userId, refreshToken),
+    };
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  async google() {
+    console.log('/google');
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleOauthCallback() {
+    return {
+      message: 'Refresh token success',
+    };
+  }
+
+  @Post('google/token')
+  @UseGuards(GoogleOauthGuard)
+  async oauthToken(@Req() req: Request) {
+    const oauthDto: OauthDto = req.user as OauthDto;
+    return {
+      message: 'Login Google success',
+      result: await this.authService.googleAuthToken(oauthDto),
     };
   }
 }

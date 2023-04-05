@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { User } from 'src/interfaces/users.interface';
 import { LoginDto } from './dtos/login.dto';
+import { OauthDto } from './dtos/oauth.dto';
 import { RegisterDto } from './dtos/register.dto';
 
 @Injectable()
@@ -79,6 +80,22 @@ export class AuthService {
     const tokens = await this.createAccessToken(user._id, user.username);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
     return {
+      tokens,
+    };
+  }
+
+  async googleAuthToken(oauthDto: OauthDto) {
+    let user = await this.findUserByEmail(oauthDto.email);
+    if (!user) {
+      const usernameSalt = Math.floor(100000 + Math.random() * 900000);
+      oauthDto.username = 'user.' + usernameSalt;
+      user = new this.userModel(oauthDto);
+      await user.save();
+    }
+    const tokens = await this.createAccessToken(user._id, user.username);
+    await this.updateRefreshToken(user._id, tokens.refreshToken);
+    return {
+      user,
       tokens,
     };
   }
